@@ -1,4 +1,4 @@
- 17. Agent Economics
+# 17. Agent Economics
 
 ## Introduction
 
