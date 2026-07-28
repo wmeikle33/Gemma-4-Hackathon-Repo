@@ -1,511 +1,735 @@
 # 09. Evaluation
 
-## Overview
-
-Evaluation is the systematic process of measuring how well an AI system performs its intended tasks. Unlike traditional software testing, AI evaluation measures both deterministic behavior (such as tool execution) and probabilistic behavior (such as reasoning, retrieval quality, and response usefulness).
-
-Evaluation should occur throughout the entire AI system lifecycle—from prompt development to production monitoring—and should be repeatable, measurable, and aligned with business objectives.
-
-A production AI system is never considered "finished"; it is continuously evaluated and improved.
+> Evaluation measures whether an AI system actually performs its intended task reliably, safely, efficiently, and consistently in production.
 
 ---
 
-# Objectives
+# Introduction
 
-An evaluation framework should:
+Evaluation is one of the most important disciplines in AI engineering. Building an agent is only the beginning; continuous measurement is what determines whether it is useful, trustworthy, and improving over time.
 
-- Measure system quality
-- Detect regressions
-- Validate new changes
-- Compare alternative designs
-- Support continuous improvement
-- Ensure policy compliance
-- Reduce operational risk
-- Measure business impact
+Unlike traditional software, AI systems are probabilistic. Evaluation therefore measures behavior across many examples rather than verifying a single correct output.
 
 ---
 
-# Evaluation Architecture
+# Why Evaluation Exists
 
-```text
-                Test Dataset
-                      │
-                      ▼
-              AI System Execution
-                      │
-                      ▼
-             Collect Outputs
-                      │
-                      ▼
-          Compare Against Expected
-                      │
-                      ▼
-            Calculate Metrics
-                      │
-                      ▼
-          Generate Evaluation Report
-                      │
-                      ▼
-             Improve the System
-```
+Evaluation answers questions such as:
 
-Evaluation should become part of every development cycle.
+- Does the agent solve the user's problem?
+- Is it accurate?
+- Is it grounded?
+- Is it safe?
+- Is it fast enough?
+- Is it cost effective?
+- Is it improving?
+
+Without evaluation, improvements become guesswork.
 
 ---
 
-# Levels of Evaluation
+# What Should Be Evaluated
 
-AI systems should be evaluated at multiple levels.
-
-## Component Evaluation
-
-Evaluates individual components.
-
-Examples:
-
-- Prompt templates
-- Routing logic
-- Tool integrations
-- Knowledge retrieval
-- Memory management
-
----
-
-## Agent Evaluation
-
-Measures individual agent performance.
-
-Questions include:
-
-- Did the agent follow instructions?
-- Was the response accurate?
-- Were tools used appropriately?
-- Were citations provided?
-- Were escalation policies followed?
-
----
-
-## Workflow Evaluation
-
-Measures complete workflows.
-
-Examples:
-
-- Customer support workflow
-- Document review workflow
-- Market research workflow
-
-Evaluation focuses on successful task completion rather than individual responses.
-
----
-
-## System Evaluation
-
-Measures the entire AI platform.
-
-Examples:
-
-- End-to-end latency
-- Total cost
-- User satisfaction
-- Reliability
-- Overall task completion
-
----
-
-# Types of Evaluation
-
-## Functional Evaluation
-
-Determines whether the task was completed correctly.
-
-Examples:
-
-- Correct classification
-- Correct routing
-- Correct calculations
-- Proper workflow execution
-
----
-
-## Quality Evaluation
-
-Measures response quality.
-
-Possible criteria:
-
-- Accuracy
-- Completeness
-- Clarity
-- Relevance
-- Consistency
-
----
-
-## Retrieval Evaluation
-
-Measures knowledge retrieval performance.
-
-Useful metrics:
-
-- Precision
-- Recall
-- Ranking quality
-- Citation quality
-- Retrieval latency
-
-Retrieval quality often determines the quality of final responses.
-
----
-
-## Tool Evaluation
-
-Measures tool usage.
-
-Examples:
-
-- Correct tool selected
-- Successful execution
-- Correct parameters
-- Error handling
-- Retry behavior
-
----
-
-## Safety Evaluation
-
-Evaluates compliance with safety requirements.
-
-Examples:
-
-- Prompt injection resistance
+- Answer quality
+- Task completion
+- Retrieval quality
+- Tool selection
+- Routing accuracy
+- Memory usefulness
+- Safety
 - Hallucination rate
-- Privacy protection
-- Policy adherence
-- Sensitive data handling
-
----
-
-## Human Review Evaluation
-
-Measures the effectiveness of human oversight.
-
-Examples:
-
-- Approval rate
-- Override rate
-- Escalation quality
-- Reviewer agreement
-
----
-
-# Evaluation Metrics
-
-Common quantitative metrics include:
-
-| Metric | Description |
-|----------|-------------|
-| Accuracy | Correct responses |
-| Precision | Relevant positive results |
-| Recall | Relevant items successfully identified |
-| F1 Score | Precision/Recall balance |
-| Latency | Response time |
-| Cost | Cost per request |
-| Success Rate | Completed workflows |
-| Hallucination Rate | Unsupported statements |
-| Citation Accuracy | Correct evidence |
-| Escalation Rate | Human review frequency |
-
-The most important metrics depend on the application.
-
----
-
-# Business Metrics
-
-Technical performance should be linked to business outcomes.
-
-Examples:
-
-- Customer satisfaction
-- Resolution rate
-- Revenue impact
-- Support cost reduction
-- Analyst productivity
-- Review time reduction
-- User adoption
-- Time saved
-
-Business metrics demonstrate real-world value.
-
----
-
-# Evaluation Dataset
-
-A representative evaluation dataset should include:
-
-- Typical requests
-- Difficult edge cases
-- Ambiguous inputs
-- Missing information
-- Invalid requests
-- Policy violations
-- Prompt injection attempts
-- High-risk scenarios
-
-Evaluation datasets should evolve over time.
-
----
-
-# Automated Evaluation
-
-Automated evaluation enables continuous testing.
-
-Examples:
-
-```text
-Prompt Update
-
-↓
-
-Run Evaluation Suite
-
-↓
-
-Compare Results
-
-↓
-
-Pass
-
-↓
-
-Deploy
-```
-
-Automation helps prevent regressions.
-
----
-
-# Human Evaluation
-
-Some characteristics require human judgment.
-
-Examples:
-
-- Helpfulness
-- Readability
-- Tone
-- Reasoning quality
-- User experience
-
-Human evaluation complements automated metrics.
-
----
-
-# A/B Testing
-
-Alternative system designs can be compared.
-
-Examples:
-
-- Prompt A vs Prompt B
-- Workflow A vs Workflow B
-- Model A vs Model B
-- Retrieval Strategy A vs Strategy B
-
-Useful metrics include:
-
-- User satisfaction
-- Completion rate
 - Latency
 - Cost
+- User satisfaction
 
 ---
 
-# Benchmarking
+# Offline vs Online Evaluation
 
-Evaluation should compare:
+## Offline
 
-- Previous system versions
-- Baseline models
-- Alternative prompts
-- Different workflows
-- Different retrieval strategies
+Uses benchmark datasets and repeatable test cases.
 
-Benchmarking helps quantify improvement.
+Advantages:
+- reproducible
+- inexpensive
+- easy comparison
 
----
+## Online
 
-# Regression Testing
-
-Every significant change should trigger evaluation.
+Measures real production traffic.
 
 Examples:
 
-- Prompt updates
-- Workflow modifications
-- Tool integrations
-- Model upgrades
-- Knowledge updates
-
-Regression testing ensures existing functionality is preserved.
+- A/B testing
+- Shadow deployment
+- Canary releases
+- User feedback
 
 ---
 
 # Evaluation Pipeline
 
-```text
-Code Changes
-
-↓
-
-Run Tests
-
-↓
-
-Execute Evaluation Dataset
-
-↓
-
-Calculate Metrics
-
-↓
-
-Compare Baseline
-
-↓
-
-Generate Report
-
-↓
-
-Deploy
+```mermaid
+flowchart TD
+A[Test Dataset]-->B[Run Agent]
+B-->C[Collect Outputs]
+C-->D[Score Metrics]
+D-->E[Analyze Failures]
+E-->F[Improve System]
 ```
 
-Evaluation should be integrated into CI/CD pipelines whenever possible.
+---
+
+# Common Metrics
+
+| Category | Example Metrics |
+|---|---|
+| Quality | Accuracy, F1, BLEU, ROUGE |
+| Retrieval | Recall, Precision, MRR, nDCG |
+| Tools | Selection accuracy, execution success |
+| Memory | Retrieval precision, usefulness |
+| Routing | Correct route %, fallback rate |
+| Safety | Refusal accuracy, violation rate |
+| Performance | Latency, throughput |
+| Cost | Tokens, API cost |
+| UX | User satisfaction |
 
 ---
 
-# Error Analysis
+# Human Evaluation
 
-Evaluation should include qualitative analysis.
+Humans should evaluate:
 
-Questions to investigate:
-
-- Why did the failure occur?
-- Which component caused it?
-- Was retrieval incorrect?
-- Was routing incorrect?
-- Did the prompt fail?
-- Was a tool unavailable?
-- Was human review required?
-
-Understanding failures is more valuable than simply measuring them.
+- correctness
+- completeness
+- clarity
+- helpfulness
+- factual grounding
+- tone
+- policy compliance
 
 ---
 
-# Reporting
+# LLM-as-a-Judge
 
-Evaluation reports should include:
+Large language models can score outputs for:
 
-- Test summary
-- Metrics
-- Successes
-- Failures
-- Regression analysis
-- Recommendations
-- Version information
+- relevance
+- coherence
+- completeness
+- consistency
 
-Reports should support both technical and business stakeholders.
+Human calibration is still required.
 
 ---
 
-# Governance
+# Regression Testing
 
-Organizations should define:
-
-- Evaluation owners
-- Evaluation frequency
-- Acceptance criteria
-- Benchmark datasets
-- Review procedures
-- Documentation standards
-
-Evaluation should be treated as an ongoing operational process.
+Every significant change should rerun the evaluation suite to detect regressions.
 
 ---
 
-# Relationship to Other Components
+# A/B Testing
 
-| Component | Relationship |
-|------------|--------------|
-| `framework/tests/` | Executes evaluation scenarios |
-| `framework/agents/` | Agent behavior is evaluated |
-| `framework/workflows/` | Workflow performance is measured |
-| `framework/tools/` | Tool reliability is evaluated |
-| `framework/knowledge/` | Retrieval quality is assessed |
-| `docs/07_guardrails.md` | Safety compliance is evaluated |
-| `docs/08_human_review.md` | Human oversight effectiveness is measured |
-| `docs/10_monitoring.md` | Production metrics continue evaluation after deployment |
+Compare two system versions using production traffic.
+
+Measure:
+
+- success rate
+- latency
+- cost
+- user preference
 
 ---
 
-# Repository Organization
+# Failure Analysis
 
-Recommended structure:
+Investigate:
 
-```text
-framework/
-│
-├── evaluations/
-│   ├── datasets/
-│   ├── benchmarks/
-│   ├── reports/
-│   ├── metrics/
-│   └── evaluation_cases.json
-│
-├── tests/
-│
-└── agents/
-```
-
-Evaluation artifacts should remain independent of production workflows.
+- hallucinations
+- wrong tool use
+- routing mistakes
+- retrieval failures
+- policy violations
+- timeout errors
 
 ---
 
-# Best Practices
+# Evaluation Dataset
 
-- Evaluate every major system component.
-- Measure both technical and business outcomes.
-- Maintain representative benchmark datasets.
-- Automate evaluations whenever possible.
-- Include edge cases and adversarial scenarios.
-- Perform regression testing after every significant change.
+A high-quality benchmark should contain:
+
+- representative tasks
+- expected outputs
+- edge cases
+- adversarial examples
+- policy tests
+
+---
+
+# Continuous Evaluation
+
+Production systems should evaluate continuously rather than relying only on pre-release testing.
+
+---
+
+# Failure Modes
+
+| Failure | Mitigation |
+|---|---|
+| Measuring only accuracy | Add business metrics |
+| Tiny benchmark | Increase diversity |
+| Metric gaming | Use multiple metrics |
+| No regression tests | Automate evaluation |
+| Ignoring production | Add online monitoring |
+
+---
+
+# Anti-Patterns
+
+- Evaluating only with demos
+- One metric decides everything
+- No baseline
+- No human review
+- Ignoring failures
+- Optimizing benchmarks instead of users
+
+---
+
+# Design Principles
+
+- Measure continuously.
+- Use multiple metrics.
 - Combine automated and human evaluation.
-- Track trends over time.
-- Document evaluation methodology.
-- Continuously improve based on evaluation findings.
+- Track cost and latency with quality.
+- Evaluate complete workflows, not isolated components.
 
 ---
 
-# Common Mistakes
+# Design Checklist
 
-Avoid:
+- [ ] Benchmark dataset
+- [ ] Automated tests
+- [ ] Human review
+- [ ] Regression suite
+- [ ] Production monitoring
+- [ ] Cost tracking
+- [ ] Latency tracking
+- [ ] Failure analysis
 
-- Evaluating only accuracy
-- Ignoring business outcomes
-- Using unrealistic test data
-- Measuring only happy-path scenarios
-- Skipping regression testing
-- Failing to analyze root causes
-- Treating evaluation as a one-time activity
+---
+
+# Related Chapters
+
+- 04_tools.md
+- 05_routing.md
+- 07_guardrails.md
+- 08_human_review.md
+- 10_monitoring.md
 
 ---
 
 # Key Takeaways
 
-- Evaluation measures how well an AI system performs in real-world conditions.
-- Effective evaluation spans prompts, agents, workflows, retrieval, tools, and business outcomes.
-- Automated testing and human judgment complement one another.
-- Continuous evaluation enables safe iteration and long-term improvement.
-- Evaluation is a core engineering discipline for production AI systems, not simply a testing activity.
+Evaluation transforms AI engineering from experimentation into a measurable engineering discipline.
+
+
+## Evaluation Example 1
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 2
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 3
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 4
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 5
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 6
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 7
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 8
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 9
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 10
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 11
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 12
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 13
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 14
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 15
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 16
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 17
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 18
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 19
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 20
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 21
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 22
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 23
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 24
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 25
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 26
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 27
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 28
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 29
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 30
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 31
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 32
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 33
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 34
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 35
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 36
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 37
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 38
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 39
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 40
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 41
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 42
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 43
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 44
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 45
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 46
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 47
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 48
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 49
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 50
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 51
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 52
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 53
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 54
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 55
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 56
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 57
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 58
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 59
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 60
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 61
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 62
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 63
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 64
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 65
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 66
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 67
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 68
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 69
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 70
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 71
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 72
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 73
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 74
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 75
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 76
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 77
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 78
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 79
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 80
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 81
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 82
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 83
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 84
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 85
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 86
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 87
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 88
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 89
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 90
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 91
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 92
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 93
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 94
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 95
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 96
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 97
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 98
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 99
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
+
+
+## Evaluation Example 100
+
+This scenario evaluates an AI workflow by measuring task success, factual accuracy, grounding, tool usage, routing quality, latency, cost, safety, and user satisfaction. Record failures, identify root causes, compare against previous baselines, and use the results to guide future improvements.
