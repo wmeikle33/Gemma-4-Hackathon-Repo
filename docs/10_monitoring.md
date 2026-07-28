@@ -1,317 +1,700 @@
 # 10. Monitoring
 
-## Purpose
+> Monitoring is the continuous observation of an AI system in production to ensure it remains reliable, safe, performant, and cost-effective.
 
-Monitoring is the continuous observation of an AI agent or workflow
-after deployment. Unlike traditional software, AI agents can change
-behavior over time due to model updates, knowledge changes, prompt
-revisions, tool failures, or shifting user requests.
+---
 
-This chapter explains how to monitor AI agents regardless of whether
-they are implemented using n8n, LangGraph, CrewAI, OpenAI Agents SDK,
-AutoGen, or another framework.
+# Introduction
 
-------------------------------------------------------------------------
+Unlike traditional software, AI systems can degrade over time due to changing data, user behavior, model updates, or external dependencies. Monitoring provides visibility into system health and enables rapid detection of issues.
 
-# Learning Objectives
+---
 
-After reading this chapter, you should be able to:
+# Why Monitoring Exists
 
--   Explain why monitoring is essential.
--   Identify the key categories of monitoring.
--   Define meaningful operational metrics.
--   Distinguish monitoring from evaluation.
--   Design dashboards and alerts.
--   Monitor multi-agent systems.
--   Track cost, latency, and quality over time.
+Monitoring helps answer questions such as:
 
-------------------------------------------------------------------------
+- Is the system healthy?
+- Are users succeeding?
+- Are costs increasing?
+- Are models drifting?
+- Are tools failing?
+- Are guardrails being triggered?
+- Are SLAs being met?
 
-# Why Monitoring Matters
-
-Monitoring answers the question:
-
-> **"Is my AI system still working correctly today?"**
-
-Without monitoring, problems often go unnoticed:
-
--   Hallucinations increase.
--   APIs fail silently.
--   Costs rise unexpectedly.
--   Latency grows.
--   Routing errors appear.
--   Human review queues become overloaded.
-
-------------------------------------------------------------------------
+---
 
 # What Should Be Monitored
 
-## 1. Performance
+- Availability
+- Latency
+- Throughput
+- Error rate
+- Token usage
+- API costs
+- Retrieval quality
+- Tool success rate
+- Routing decisions
+- Memory usage
+- Hallucination indicators
+- User satisfaction
+- Human escalation rate
 
-Typical metrics:
+---
 
-  Metric              Description
-  ------------------- ---------------------------------------
-  Response time       End-to-end completion time
-  Tool latency        Time spent waiting for external tools
-  Workflow duration   Total execution time
-  Throughput          Requests handled per minute
+# Monitoring Architecture
 
-Example:
-
-``` text
-User
-  │
-  ▼
-Router (30 ms)
-  │
-Retriever (220 ms)
-  │
-LLM (1.8 s)
-  │
-Response
+```mermaid
+flowchart LR
+A[Users] --> B[AI System]
+B --> C[Metrics]
+B --> D[Logs]
+B --> E[Traces]
+C --> F[Dashboards]
+D --> F
+E --> F
+F --> G[Alerts]
 ```
 
-------------------------------------------------------------------------
+---
 
-## 2. Quality
+# The Three Pillars
 
-Quality metrics include:
+## Metrics
+Numerical time-series measurements such as latency, cost, and request volume.
 
--   Task completion rate
--   Hallucination rate
--   Citation accuracy
--   Customer satisfaction
--   Grounded responses
+## Logs
+Structured event records for debugging and auditing.
 
-Example targets:
+## Traces
+End-to-end request flows across models, tools, agents, and services.
 
-  Metric                  Target
-  ----------------------- --------
-  Hallucinations          \<1%
-  Citation accuracy       \>99%
-  Successful completion   \>95%
+---
 
-------------------------------------------------------------------------
+# Key Metrics
 
-## 3. Cost
+| Category | Example Metrics |
+|---|---|
+| Reliability | Uptime, availability, error rate |
+| Performance | P50/P95/P99 latency, throughput |
+| Cost | Tokens, API cost, cost per request |
+| Quality | Success rate, hallucination rate |
+| Retrieval | Recall, hit rate |
+| Routing | Correct route %, fallback rate |
+| Tools | Execution success, timeout rate |
+| Safety | Policy violations, guardrail triggers |
 
-Monitor:
+---
 
--   Token usage
--   API spend
--   Embedding cost
--   Search cost
+# Alerting
 
-Example:
+Alerts should be actionable.
 
-  Component      Daily Cost
-  ------------ ------------
-  LLM                  \$24
-  Embeddings            \$5
-  Search                \$7
-  Total                \$36
+Examples:
 
-------------------------------------------------------------------------
+- Error rate exceeds threshold
+- Latency spikes
+- API unavailable
+- Tool failure increases
+- Costs exceed budget
+- Hallucination rate rises
 
-## 4. Reliability
-
-Track:
-
--   Failures
--   Retries
--   Timeouts
--   Invalid outputs
--   Tool availability
-
-------------------------------------------------------------------------
-
-## 5. Tool Monitoring
-
-Each tool should have independent metrics.
-
-  Tool       Success Rate
-  -------- --------------
-  Search            99.3%
-  CRM               99.8%
-  Email             99.9%
-
-------------------------------------------------------------------------
-
-## 6. Routing Monitoring
-
-For multi-agent systems monitor:
-
--   Delegation accuracy
--   Routing loops
--   Escalation frequency
--   Dead ends
-
-------------------------------------------------------------------------
-
-## 7. Memory Monitoring
-
-Track:
-
--   Retrieval accuracy
--   Duplicate memories
--   Stale memories
--   Memory growth
-
-------------------------------------------------------------------------
-
-## 8. Security Monitoring
-
-Watch for:
-
--   Prompt injection
--   Unauthorized tool use
--   Suspicious request patterns
--   Data leakage attempts
-
-------------------------------------------------------------------------
-
-# Logging vs Monitoring
-
-Logging records events.
-
-``` text
-10:15 Search Tool Success
-```
-
-Monitoring analyzes trends.
-
-``` text
-Search failures increased by 35%.
-Alert generated.
-```
-
-Logs answer **what happened**.
-
-Monitoring answers **is the system healthy**.
-
-------------------------------------------------------------------------
-
-# Observability
-
-Three pillars:
-
-1.  Logs
-2.  Metrics
-3.  Traces
-
-Example trace:
-
-``` text
-User
- ↓
-Router
- ↓
-Research Agent
- ↓
-Search
- ↓
-Summarizer
- ↓
-Response
-```
-
-------------------------------------------------------------------------
+---
 
 # Dashboards
 
-A useful dashboard typically includes:
+A production dashboard should include:
 
--   Request volume
--   Average latency
--   Cost
--   Success rate
--   Human reviews
--   Tool failures
+- Request volume
+- Success rate
+- Latency
+- Cost
+- Tool usage
+- Model usage
+- Escalations
+- Active incidents
 
-------------------------------------------------------------------------
+---
 
-# Alerts
+# Incident Response
 
-Suggested alert thresholds:
+1. Detect
+2. Triage
+3. Mitigate
+4. Root cause analysis
+5. Recovery
+6. Postmortem
 
-  Alert                    Trigger
-  ------------------------ -------------
-  High latency             \>5 s
-  Cost spike               \>20% daily
-  Tool failure             \>10%
-  Hallucination increase   \>2%
+---
 
-------------------------------------------------------------------------
-
-# Human Review Monitoring
+# Drift Monitoring
 
 Track:
 
--   Approval rate
--   Override rate
--   Review backlog
--   Average review time
+- input drift
+- output drift
+- embedding drift
+- user behavior drift
+- model performance drift
 
-------------------------------------------------------------------------
+---
 
-# Multi-Agent Monitoring
+# Failure Modes
 
-Additional metrics:
+| Failure | Mitigation |
+|---|---|
+| Missing metrics | Instrument every service |
+| Alert fatigue | Tune thresholds |
+| Silent failures | Synthetic monitoring |
+| No tracing | Distributed tracing |
+| No ownership | Define on-call responsibilities |
 
--   Delegation count
--   Coordination latency
--   Workflow completion
--   Conflict resolution rate
+---
 
-------------------------------------------------------------------------
+# Anti-Patterns
 
-# Best Practices
+- Monitoring only infrastructure
+- No business metrics
+- Too many alerts
+- Unstructured logs
+- Ignoring costs
+- No postmortems
 
--   Monitor quality as well as speed.
--   Measure cost continuously.
--   Alert only on meaningful thresholds.
--   Monitor every external tool separately.
--   Review dashboards regularly.
--   Keep detailed audit logs.
--   Use traces for debugging complex workflows.
+---
 
-------------------------------------------------------------------------
+# Design Principles
 
-# Common Mistakes
+- Monitor continuously.
+- Prefer structured telemetry.
+- Alert on user impact.
+- Correlate metrics, logs, and traces.
+- Measure business outcomes alongside technical metrics.
 
--   Monitoring only latency.
--   Ignoring hallucinations.
--   Not tracking cost.
--   Never reviewing logs.
--   Alerting on every small issue.
--   Ignoring human corrections.
+---
 
-------------------------------------------------------------------------
+# Design Checklist
 
-# Relationship to Other Chapters
+- [ ] Metrics
+- [ ] Logs
+- [ ] Traces
+- [ ] Dashboards
+- [ ] Alerts
+- [ ] Incident runbooks
+- [ ] Cost monitoring
+- [ ] Drift detection
+- [ ] Postmortem process
 
-  -----------------------------------------------------------------------
-  Chapter                       Relationship
-  ----------------------------- -----------------------------------------
-  09 Evaluation                 Evaluation validates before deployment.
-                                Monitoring validates after deployment.
+---
 
-  08 Human Review               Monitoring measures review workload and
-                                overrides.
+# Related Chapters
 
-  11 Security                   Monitoring detects security incidents.
+- 04_tools.md
+- 05_routing.md
+- 07_guardrails.md
+- 09_evaluation.md
 
-  12 Multi-Agent Systems        Adds coordination metrics and routing
-                                visibility.
-  -----------------------------------------------------------------------
+---
 
-------------------------------------------------------------------------
+# Key Takeaways
 
-# Summary
+Monitoring closes the feedback loop between development and production by providing continuous visibility into reliability, quality, safety, and business performance.
 
-Monitoring provides continuous visibility into an AI system after
-deployment. Effective monitoring combines performance, quality,
-reliability, cost, security, routing, memory, and human review metrics
-to ensure agents remain trustworthy, efficient, and safe over time.
 
+## Monitoring Scenario 1
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 2
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 3
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 4
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 5
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 6
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 7
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 8
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 9
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 10
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 11
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 12
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 13
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 14
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 15
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 16
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 17
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 18
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 19
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 20
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 21
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 22
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 23
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 24
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 25
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 26
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 27
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 28
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 29
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 30
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 31
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 32
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 33
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 34
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 35
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 36
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 37
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 38
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 39
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 40
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 41
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 42
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 43
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 44
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 45
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 46
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 47
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 48
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 49
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 50
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 51
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 52
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 53
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 54
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 55
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 56
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 57
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 58
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 59
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 60
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 61
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 62
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 63
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 64
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 65
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 66
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 67
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 68
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 69
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 70
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 71
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 72
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 73
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 74
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 75
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 76
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 77
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 78
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 79
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 80
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 81
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 82
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 83
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 84
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 85
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 86
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 87
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 88
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 89
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 90
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 91
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 92
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 93
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 94
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 95
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 96
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 97
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 98
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 99
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
+
+
+## Monitoring Scenario 100
+
+Track request latency, model selection, routing decisions, retrieval quality, tool execution, token usage, API cost, guardrail events, user satisfaction, and incident signals. Compare against historical baselines, trigger alerts when thresholds are exceeded, and feed findings into evaluation and system improvements.
