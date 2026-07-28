@@ -1,499 +1,402 @@
 # 03. Memory
 
-## Overview
-
-Memory enables AI agents to retain, retrieve, and use information across interactions. Rather than relying solely on the current prompt, memory allows agents to personalize responses, maintain context, improve efficiency, and support long-running workflows.
-
-Memory should be treated as a managed system with clear policies for storage, retrieval, updating, and deletion. Not every interaction should be remembered, and different types of information require different retention strategies.
+> Memory enables AI systems to retain, retrieve, and use information beyond a single model invocation, allowing more personalized, consistent, and capable behavior.
 
 ---
 
-# Objectives
+# Introduction
 
-An effective memory system should:
+Large language models are powerful reasoning engines, but they are **stateless** by default. Each request is processed independently unless previous information is explicitly provided.
 
-- Preserve relevant context
-- Improve response quality
-- Reduce repeated user input
-- Support multi-step workflows
-- Enable personalization
-- Maintain consistency across conversations
-- Protect user privacy
-- Be transparent and auditable
+Memory gives AI systems continuity. Instead of treating every interaction as brand new, an agent can remember relevant facts, preferences, previous actions, and long-running tasks.
+
+This chapter explains why memory exists, the different types of memory, common architectures, design tradeoffs, and best practices for building reliable memory systems.
 
 ---
 
-# Memory Architecture
+# Why Memory Exists
+
+Language models do not automatically remember previous conversations or actions.
+
+Without memory:
+
+- Users repeat information.
+- Long-running tasks lose context.
+- Preferences are forgotten.
+- Multi-session workflows become difficult.
+- Personalized experiences are impossible.
+
+Memory solves these problems by storing information outside the model and retrieving it when needed.
 
 ```text
-                    User Interaction
-                           │
-                           ▼
-                  Memory Classification
-                           │
-        ┌──────────────────┼──────────────────┐
-        ▼                  ▼                  ▼
-   Short-Term         Long-Term         External Knowledge
-      Memory             Memory               Sources
-        │                  │                  │
-        └──────────────┬───┴──────────────────┘
-                       ▼
-               Memory Retrieval
-                       │
-                       ▼
-                 Agent Reasoning
-                       │
-                       ▼
-               Updated Memory
+Conversation
+      ↓
+Store Important Information
+      ↓
+Memory Store
+      ↓
+Future Request
+      ↓
+Retrieve Relevant Context
+      ↓
+Language Model
 ```
+
+Memory is not about remembering **everything**—it is about remembering the **right things**.
 
 ---
 
-# Memory Types
+# The Problem Memory Solves
 
-## Short-Term Memory
+Memory addresses several engineering challenges:
 
-Short-term memory exists only during the current interaction or workflow.
+- **Context window limits** – conversations eventually exceed model limits.
+- **Session continuity** – users expect the system to remember earlier interactions.
+- **Personalization** – preferences should not be re-entered every session.
+- **Long-running workflows** – tasks spanning hours or days require persistent state.
+- **Knowledge reuse** – previously retrieved or generated information can often be reused.
 
-Typical contents include:
+---
 
-- Current conversation
-- Intermediate reasoning
-- Tool outputs
-- Retrieved documents
-- Temporary variables
-- Workflow state
+# Evolution of Memory Systems
 
-Characteristics:
+```text
+No Memory
+      ↓
+Conversation History
+      ↓
+Session Memory
+      ↓
+Persistent Memory
+      ↓
+Semantic Memory
+      ↓
+Memory-Augmented Agents
+```
 
-- Temporary
-- Automatically discarded
-- Fast access
-- Small context window
+Each stage improves the ability of AI systems to maintain useful context while balancing cost, latency, and complexity.
+
+---
+
+# What Is Memory?
+
+Memory is information stored outside the language model that can be retrieved and incorporated into future reasoning.
+
+A memory system generally includes:
+
+- storage
+- retrieval
+- ranking
+- updating
+- expiration
+- validation
+
+---
+
+# Types of Memory
+
+## Why Different Memory Types Exist
+
+Not all information should be stored the same way.
+
+Some information is useful for only a few minutes, while other information remains valuable for months.
+
+Choosing the correct memory type improves both performance and maintainability.
+
+---
+
+## Working Memory
+
+### Why It Exists
+
+Working memory stores information required only while completing the current task.
 
 Examples:
 
-- Current customer support conversation
-- Multi-step planning task
-- Active research session
+- intermediate calculations
+- current tool outputs
+- execution state
+- temporary variables
+
+Advantages:
+
+- simple
+- fast
+- automatically discarded
+
+Tradeoffs:
+
+- unavailable after the workflow ends
+
+---
+
+## Short-Term Memory
+
+### Why It Exists
+
+Short-term memory maintains conversational continuity during a single session.
+
+Examples:
+
+- previous questions
+- clarification requests
+- temporary goals
+
+When to use:
+
+- chatbots
+- coding assistants
+- tutoring systems
+
+When not to use:
+
+- long-term personalization
 
 ---
 
 ## Long-Term Memory
 
-Long-term memory persists across multiple conversations or sessions.
+### Why It Exists
+
+Some information remains valuable across multiple sessions.
 
 Examples:
 
-- User preferences
-- Frequently used settings
-- Organizational policies
-- Saved workflows
-- Agent configurations
-- Frequently referenced documents
+- preferred language
+- communication style
+- saved projects
+- recurring workflows
 
-Characteristics:
+Advantages:
 
-- Persistent
-- Searchable
-- Updated over time
-- Subject to retention policies
+- personalization
+- continuity
+- reduced repetition
 
----
+Tradeoffs:
 
-## Semantic Memory
-
-Semantic memory stores factual knowledge.
-
-Examples:
-
-- Company policies
-- Product documentation
-- Technical manuals
-- Standard operating procedures
-- Knowledge base articles
-
-Semantic memory typically originates from external knowledge sources rather than user interactions.
+- requires governance
+- may become outdated
 
 ---
 
 ## Episodic Memory
 
-Episodic memory stores information about past interactions.
+### Why It Exists
+
+Stores experiences or completed interactions.
 
 Examples:
 
-- Previous conversations
-- Completed tasks
-- Past recommendations
-- Prior decisions
-- Historical workflow executions
+- previous troubleshooting sessions
+- completed support tickets
+- prior analyses
 
-This allows agents to maintain continuity across sessions.
+Useful for reflecting on previous actions rather than storing general knowledge.
+
+---
+
+## Semantic Memory
+
+### Why It Exists
+
+Stores factual knowledge independent of individual conversations.
+
+Examples:
+
+- company policies
+- product documentation
+- technical references
+
+Often implemented with embeddings and vector databases.
 
 ---
 
 ## Procedural Memory
 
-Procedural memory represents how to perform tasks.
+### Why It Exists
+
+Stores how to perform recurring tasks.
 
 Examples:
 
-- Workflow definitions
-- Tool usage procedures
-- Prompt templates
-- Decision trees
-- Routing rules
-- Business processes
-
-Procedural memory changes less frequently than conversational memory.
+- workflows
+- tool usage patterns
+- standard operating procedures
 
 ---
 
 # Memory Lifecycle
 
-Every memory should follow a defined lifecycle.
-
 ```text
-Information Created
-        │
-        ▼
-Classification
-        │
-        ▼
-Validation
-        │
-        ▼
-Storage
-        │
-        ▼
-Retrieval
-        │
-        ▼
-Update
-        │
-        ▼
-Expiration / Deletion
+Observe
+   ↓
+Decide Whether to Store
+   ↓
+Store
+   ↓
+Index
+   ↓
+Retrieve
+   ↓
+Use
+   ↓
+Update or Expire
 ```
 
----
-
-# Memory Classification
-
-Not every piece of information should be remembered.
-
-Examples of useful long-term memory:
-
-- Preferred language
-- Communication style
-- Time zone
-- Saved preferences
-- Frequently used projects
-- User-approved profile information
-
-Examples that should **not** normally be stored:
-
-- Temporary requests
-- One-time calculations
-- Session-specific reasoning
-- Sensitive personal information without explicit consent
-- Intermediate tool outputs
+Every stage should be explicit.
 
 ---
 
-# Memory Retrieval
+# Memory Architecture
 
-Agents should retrieve only the information relevant to the current task.
-
-Typical retrieval process:
+Typical architecture:
 
 ```text
-User Request
-      │
-      ▼
-Identify Relevant Context
-      │
-      ▼
-Search Memory
-      │
-      ▼
-Rank Results
-      │
-      ▼
-Inject Context into Prompt
+User
+  ↓
+Agent
+  ↓
+Memory Manager
+ ├── Working Memory
+ ├── Session Store
+ ├── Vector Database
+ └── Relational Database
 ```
 
-Retrieving unnecessary memory increases cost and may reduce response quality.
+Responsibilities:
+
+- decide what to store
+- retrieve relevant memories
+- remove stale information
+- prevent duplicates
 
 ---
 
-# Memory Updates
+# What Should Be Stored?
 
-Memories should be updated carefully.
+Good candidates include:
 
-Possible update strategies:
+- stable user preferences
+- recurring project information
+- important decisions
+- verified facts
+- task progress
 
-- Replace outdated information
-- Append new observations
-- Merge similar memories
-- Remove obsolete entries
-- Archive inactive records
+Avoid storing:
 
-Updates should preserve consistency and avoid duplication.
-
----
-
-# Memory Storage
-
-Memory may be stored using different technologies depending on the use case.
-
-Examples include:
-
-| Storage Type | Typical Use |
-|---------------|-------------|
-| Relational Database | User profiles, structured metadata |
-| Vector Database | Semantic search and retrieval |
-| Document Store | Conversation history |
-| Object Storage | Files and attachments |
-| Cache | Temporary session data |
-
-The choice of storage depends on scalability, latency, and retrieval requirements.
+- temporary prompts
+- hallucinations
+- secrets unless required
+- duplicate information
+- irrelevant conversation
 
 ---
 
-# Memory Retrieval Strategies
+# Retrieval Strategies
 
-## Keyword Search
+Common approaches include:
 
-Suitable for:
+- keyword search
+- vector similarity
+- hybrid retrieval
+- metadata filtering
+- recency ranking
 
-- Exact matches
-- IDs
-- Product names
-- Document titles
-
----
-
-## Semantic Search
-
-Suitable for:
-
-- Similar concepts
-- Natural language queries
-- Knowledge retrieval
-
-Often implemented using vector embeddings.
+The goal is to retrieve the smallest amount of relevant context necessary for the task.
 
 ---
 
-## Hybrid Search
+# Updating Memory
 
-Combines:
+Memory should evolve over time.
 
-- Keyword search
-- Semantic search
-- Metadata filtering
+Strategies include:
 
-Hybrid retrieval generally provides the best balance of precision and recall.
-
----
-
-# Memory Governance
-
-Memory systems should define:
-
-- What information may be stored
-- Who can access stored memory
-- How long information is retained
-- How memories are updated
-- When memories expire
-- Audit requirements
-- Privacy requirements
+- overwrite outdated facts
+- append new events
+- summarize long histories
+- merge duplicates
+- archive inactive records
 
 ---
 
-# Privacy Considerations
+# Memory Tradeoffs
 
-Memory should follow the principle of data minimization.
-
-Best practices include:
-
-- Store only necessary information.
-- Avoid retaining sensitive personal data unless explicitly required and authorized.
-- Allow users to review stored information where appropriate.
-- Support deletion or correction requests.
-- Encrypt sensitive data at rest and in transit.
-- Log significant memory operations.
+| Advantage | Tradeoff |
+|-----------|----------|
+| Better personalization | More storage |
+| Longer context | Higher retrieval latency |
+| Fewer repeated questions | Risk of stale information |
+| Workflow continuity | More complex architecture |
+| Better user experience | Privacy considerations |
 
 ---
 
-# Memory in AI Workflows
+# Common Failure Modes
 
-Memory interacts with multiple framework components.
-
-```text
-User Request
-      │
-      ▼
-Retrieve Memory
-      │
-      ▼
-Retrieve Knowledge
-      │
-      ▼
-Agent Reasoning
-      │
-      ▼
-Generate Response
-      │
-      ▼
-Update Memory (Optional)
-```
-
-Memory complements knowledge retrieval but should not replace authoritative knowledge sources.
+| Failure | Cause | Mitigation |
+|---------|-------|------------|
+| Remembering everything | No filtering | Store only high-value information |
+| Forgetting important facts | Weak retrieval | Improve ranking |
+| Stale memories | No updates | Expire or refresh records |
+| Duplicate memories | Poor deduplication | Merge similar entries |
+| Hallucinated memory | Storing unverified outputs | Validate before saving |
 
 ---
 
-# Common Memory Patterns
+# Memory Anti-Patterns
 
-## Conversation Memory
-
-Maintains context throughout a dialogue.
-
-Example:
-
-- Previous questions
-- Previous answers
-- User goals
+- Memory Everything
+- Hidden State
+- Never Expire Data
+- Duplicate Storage
+- Using Memory Instead of Retrieval
+- Ignoring Privacy Requirements
 
 ---
 
-## User Preference Memory
+# Design Principles
 
-Stores stable preferences.
-
-Examples:
-
-- Preferred language
-- Notification preferences
-- Writing style
-- Output format
+- Store intentionally.
+- Retrieve minimally.
+- Validate before saving.
+- Separate temporary and persistent memory.
+- Expire information when appropriate.
+- Make memory observable and testable.
 
 ---
 
-## Project Memory
+# Choosing the Right Memory
 
-Maintains context for ongoing work.
-
-Examples:
-
-- Current project
-- Recent decisions
-- Outstanding tasks
-- Shared documents
-
----
-
-## Organizational Memory
-
-Stores information shared across users.
-
-Examples:
-
-- Company policies
-- Internal documentation
-- Product catalog
-- Workflow definitions
+| Requirement | Recommended Memory |
+|------------|--------------------|
+| Current task | Working Memory |
+| Single conversation | Short-Term Memory |
+| User preferences | Long-Term Memory |
+| Previous interactions | Episodic Memory |
+| Reference knowledge | Semantic Memory |
+| Reusable workflows | Procedural Memory |
 
 ---
 
-# Memory Evaluation
+# Related Chapters
 
-Memory systems should be evaluated using measurable metrics.
-
-| Metric | Description |
-|----------|-------------|
-| Retrieval Precision | Relevant memories returned |
-| Retrieval Recall | Important memories successfully found |
-| Latency | Retrieval speed |
-| Memory Freshness | Up-to-date information |
-| Duplicate Rate | Duplicate memories stored |
-| Update Accuracy | Correctly modified memories |
-| User Satisfaction | Perceived usefulness |
-
----
-
-# Common Challenges
-
-Common memory-related issues include:
-
-- Stale information
-- Duplicate entries
-- Irrelevant retrieval
-- Privacy concerns
-- Excessive context size
-- Incorrect updates
-- Forgotten important information
-- Over-personalization
-
-Well-defined retention and retrieval policies help mitigate these risks.
-
----
-
-# Relationship to Other Components
-
-| Component | Relationship |
-|------------|--------------|
-| `framework/knowledge/` | Provides external factual information |
-| `framework/workflows/` | Determines when memory is retrieved or updated |
-| `framework/agents/` | Uses memory during reasoning |
-| `framework/tools/` | May read or write memory |
-| `docs/02_workflows.md` | Explains workflow orchestration |
-| `docs/04_tools.md` | Explains external tool integration |
-| `docs/08_guardrails.md` | Defines memory safety policies |
-
----
-
-# Best Practices
-
-- Store only useful long-term information.
-- Keep session memory separate from persistent memory.
-- Retrieve only relevant context.
-- Define clear retention policies.
-- Prevent duplicate memories.
-- Periodically remove obsolete information.
-- Protect sensitive data.
-- Log significant memory operations.
-- Continuously evaluate retrieval quality.
-- Treat memory as a governed system, not simply a database.
+- 01_agents.md
+- 02_workflows.md
+- 04_tools.md
+- 05_routing.md
+- 09_evaluation.md
+- 10_monitoring.md
+- 17_agent_economics.md
 
 ---
 
 # Key Takeaways
 
-- Memory enables continuity across interactions.
-- Different memory types serve different purposes.
-- Not everything should be remembered.
-- Retrieval quality is as important as storage quality.
-
-# Failure Modes
-
-## Memory Drift
-
-Symptoms
-
-The assistant gradually becomes inaccurate.
-
-Root Causes
-
-Incorrect summaries
-Repeated summarization
-Hallucinated memory
-
-Prevention
-
-Periodic re-summarization
-Human review
-Versioned memory
-- Memory should be accurate, relevant, secure, and governed.
-- Effective memory systems improve personalization, consistency, and long-term agent performance.
+- Memory exists because language models are stateless.
+- Different memory types solve different problems.
+- Good memory systems store only valuable information.
+- Retrieval quality is often more important than storage size.
+- Memory should be updated, validated, monitored, and expired over time.
+- The best memory system is the simplest one that provides the required continuity without unnecessary complexity.
